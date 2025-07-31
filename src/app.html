@@ -1,26 +1,69 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
-		  <link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-		<script
-  async
-  defer
-  data-website-id="b2bbbede-004d-4eb0-80e6-56011da855f2"
-  src="https://us.umami.is/script.js"
-></script>
+    <!-- Basic SEO -->
+    <title>Biz Tracker - Free Stock Entry Web App.</title>
+    <meta name="description" content="Track stock and manage inventory easily with Biz Tracker. Built by a commerce student for small businesses and startups." />
+    <meta name="keywords" content="Biz Tracker, stock entry app, inventory manager, commerce student, startup tool, sveltekit web app" />
+    <meta name="author" content="Prasoon Jadon" />
+    <meta name="robots" content="index, follow" />
 
-		%sveltekit.head%
-	</head>
-	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
-	</body>
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:title" content="Biz Tracker – Free Stock Entry Web App" />
+    <meta property="og:description" content="Track inventory and stock in a simple, free web app for startups." />
+    <meta property="og:image" content="https://biz-tracker-vert.vercel.app/social-preview.jpg" />
+    <meta property="og:url" content="https://biz-tracker-vert.vercel.app/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Biz Tracker – Free Stock Entry Web App" />
+    <meta name="twitter:description" content="Inventory and stock tracking made easy for solo founders and small businesses." />
+    <meta name="twitter:image" content="https://biz-tracker-vert.vercel.app/social-preview.jpg" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Biz Tracker",
+      "description": "Track stock entries and inventory for free – made by a commerce student.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://biz-tracker-vert.vercel.app/",
+      "image": "https://biz-tracker-vert.vercel.app/social-preview.jpg",
+      "creator": {
+        "@type": "Person",
+        "name": "Prasoon Jadon"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      }
+    }
+    </script>
+
+    <!-- Styles & Scripts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script
+      async
+      defer
+      data-website-id="b2bbbede-004d-4eb0-80e6-56011da855f2"
+      src="https://us.umami.is/script.js"
+    ></script>
+
+    %sveltekit.head%
+  </head>
+
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
 </html>
