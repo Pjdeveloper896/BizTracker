@@ -30,6 +30,7 @@
 			<li><a href="/map" class="black-text">Shop Map</a></li>
 			<li><a href="/about" class="black-text">About Us</a></li>
 			<li><a href="https://invoice-mint.onrender.com/" class="black-text" target="_blank">Invoice Mint</a></li>
+			<li><a href="https://bizexpneser.onrender.com/" class="black-text" target="_blank">Expense Classifier</a></li>
 			<li><a href="/" class="black-text">Home</a></li>
 		</ul>
 	</div>
@@ -41,6 +42,7 @@
 	<li><a href="/map">Shop Map</a></li>
 	<li><a href="/about">About Us</a></li>
 	<li><a href="https://invoice-mint.onrender.com/" target="_blank">Invoice Mint</a></li>
+	<li><a href="https://bizexpneser.onrender.com/" target="_blank">Expense Classifier</a></li>
 	<li><a href="/">Home</a></li>
 </ul>
 
