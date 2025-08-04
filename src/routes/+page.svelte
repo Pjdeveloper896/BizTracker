@@ -10,7 +10,7 @@
 	<meta name="description" content="BizTrack - Your smart business companion for inventory and stock management." />
 </svelte:head>
 
-<section>
+<section class="hero-section">
 	<div class="welcome-wrapper" transition:fade>
 		<picture>
 			<source srcset={welcome} type="image/webp" />
@@ -18,39 +18,27 @@
 		</picture>
 	</div>
 
-	<h1 transition:fly={{ y: 20, duration: 500 }}>
+	<h1 class="hero-title" transition:fly={{ y: 20, duration: 500 }}>
 		Welcome to <span class="brand">BizTrack</span>
 	</h1>
 
-	<h2 transition:fly={{ y: 30, delay: 200 }}>
-		Track your <strong>stock</strong>, manage <strong>inventory</strong>, and view <strong>shop maps</strong> with ease.
-	</h2>
+	<p class="hero-subtitle" transition:fly={{ y: 30, delay: 200 }}>
+		Track your <strong>stock</strong>, manage <strong>inventory</strong>, and view <strong>shop insights</strong> — all in one place.
+	</p>
 
-	<div class="card">
-		<div class="card-image waves-effect waves-block waves-light">
+	<div class="card material-card">
+		<div class="card-image">
 			<img
-				class="activator"
 				src="https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
 				alt="BizTrack Inventory Visual"
 			/>
 		</div>
 		<div class="card-content">
-			<span class="card-title activator grey-text text-darken-4">
-				BizTrack
-				<i class="material-icons right">more_vert</i>
-			</span>
-			<p><a href="/stock">Get started with stock tracking</a></p>
-		</div>
-		<div class="card-reveal">
-			<span class="card-title grey-text text-darken-4">
-				BizTrack
-				<i class="material-icons right">close</i>
-			</span>
+			<h3>Why BizTrack?</h3>
 			<p>
-				With BizTrack, you can manage your products, monitor live stock profit/loss, and
-				boost your business operations — all in one app. We hope your business becomes the #1
-				in the world!
+				Manage products, monitor stock performance, and grow your business — smarter and faster.
 			</p>
+			<a href="/stock" class="btn-link">Start Tracking →</a>
 		</div>
 	</div>
 
@@ -58,7 +46,7 @@
 
 	<a
 		href="/stock"
-		class="btn-large waves-effect waves-light amber darken-2"
+		class="btn-cta"
 		style="margin-top: 2rem;"
 		transition:fade
 	>
@@ -67,52 +55,107 @@
 </section>
 
 <style>
-	section {
-		min-height: 90vh;
+	.hero-section {
+		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
 		align-items: center;
+		justify-content: center;
 		text-align: center;
-		padding: 2rem;
-		background: linear-gradient(to right, #f8f9fa, #e0f7fa);
-	}
-
-	h1 {
-		font-size: 2.8rem;
-		margin-top: 1rem;
-		color: #2e3c48;
-	}
-
-	.brand {
-		color: #ff6f00;
-		font-weight: bold;
-	}
-
-	h2 {
-		font-size: 1.5rem;
-		color: #546e7a;
-		margin-top: 1rem;
+		padding: 3rem 1.5rem;
+		background: linear-gradient(to right, #fefefe, #e0f2f1);
 	}
 
 	.welcome-wrapper {
-		width: 80%;
+		width: 90%;
 		max-width: 600px;
-		padding-top: 1rem;
+		margin-bottom: 2rem;
 	}
 
 	.welcome-wrapper img {
 		width: 100%;
-		border-radius: 20px;
-		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		border-radius: 16px;
+		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 	}
 
-	.card {
-		margin-top: 2rem;
-		max-width: 500px;
+	.hero-title {
+		font-size: 2.6rem;
+		font-weight: 700;
+		color: #263238;
 	}
 
-	.card img {
-		border-radius: 10px;
+	.brand {
+		color: #fb8c00;
+		font-weight: 800;
+	}
+
+	.hero-subtitle {
+		font-size: 1.25rem;
+		color: #546e7a;
+		margin-top: 1rem;
+		max-width: 600px;
+	}
+
+	.material-card {
+		margin-top: 2.5rem;
+		max-width: 480px;
+		width: 100%;
+		background: #fff;
+		border-radius: 16px;
+		box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+		overflow: hidden;
+		transition: transform 0.3s ease;
+	}
+
+	.material-card:hover {
+		transform: translateY(-5px);
+	}
+
+	.card-image img {
+		width: 100%;
+		display: block;
+	}
+
+	.card-content {
+		padding: 1.5rem;
+	}
+
+	.card-content h3 {
+		margin: 0;
+		font-size: 1.4rem;
+		color: #333;
+	}
+
+	.card-content p {
+		margin: 0.75rem 0;
+		color: #555;
+	}
+
+	.btn-link {
+		color: #fb8c00;
+		font-weight: 600;
+		text-decoration: none;
+		transition: color 0.3s ease;
+	}
+
+	.btn-link:hover {
+		color: #ef6c00;
+	}
+
+	.btn-cta {
+		display: inline-block;
+		background-color: #fb8c00;
+		color: #fff;
+		padding: 0.85rem 1.5rem;
+		font-size: 1rem;
+		font-weight: 600;
+		border-radius: 50px;
+		text-decoration: none;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		transition: background-color 0.3s ease;
+	}
+
+	.btn-cta:hover {
+		background-color: #ef6c00;
 	}
 </style>
