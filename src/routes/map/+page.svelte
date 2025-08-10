@@ -8,12 +8,6 @@
   let userMarker: any;
   let shopMarker: any;
 
-  const shops: Record<string, [number, number]> = {
-    "my shop": [28.6239, 77.2090],
-    "another shop": [28.61, 77.22],
-    "coffee corner": [28.625, 77.21]
-  };
-
   onMount(async () => {
     const leaflet = await import('leaflet');
     L = leaflet.default;
@@ -37,20 +31,32 @@
     }
   });
 
-  function locateStore() {
-    const searchKey = shopName.trim().toLowerCase();
-    const coords = shops[searchKey];
-    if (coords) {
+  async function locateStore() {
+    if (!shopName.trim()) {
+      alert("Please enter a shop name.");
+      return;
+    }
+
+    // Use Nominatim API for location search
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(shopName)}`
+    );
+    const data = await response.json();
+
+    if (data.length > 0) {
+      const { lat, lon, display_name } = data[0];
+
       if (shopMarker) {
         map.removeLayer(shopMarker);
       }
-      shopMarker = L.marker(coords)
+
+      shopMarker = L.marker([lat, lon])
         .addTo(map)
-        .bindPopup(shopName)
+        .bindPopup(display_name)
         .openPopup();
-      map.setView(coords, 16);
+      map.setView([lat, lon], 16);
     } else {
-      alert("Shop not found. Try: " + Object.keys(shops).join(", "));
+      alert("No results found for that shop name.");
     }
   }
 </script>
