@@ -7,10 +7,10 @@
   let costPrice = '';
   let sellingPrice = '';
   let quantity = '';
-
   let profitLoss = 0;
 
-  const API_BASE = 'https://biz-suit-api.onrender.com';
+  const API_BASE = 'https://biz-suit-api.onrender.com/api';
+  const API_KEY = 'demo-key-123'; // replace with your backend's key
 
   function calculateProfitLoss() {
     profitLoss = tableData.reduce((acc, row) => {
@@ -21,7 +21,9 @@
 
   async function loadFromAPI() {
     try {
-      const res = await fetch(`${API_BASE}/stock`);
+      const res = await fetch(`${API_BASE}/stock`, {
+        headers: { 'x-api-key': API_KEY }
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       tableData = data;
@@ -29,7 +31,7 @@
       saveToLocalStorage();
     } catch (err) {
       console.error('❌ Failed to fetch stock from API', err);
-      loadFromLocalStorage(); // fallback to local storage
+      loadFromLocalStorage();
     }
   }
 
@@ -46,14 +48,14 @@
     try {
       const res = await fetch(`${API_BASE}/stock`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        },
         body: JSON.stringify(newRow)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      // Refresh from API after adding
       await loadFromAPI();
-
       itemName = costPrice = sellingPrice = quantity = '';
     } catch (err) {
       console.error('❌ Error adding entry:', err);
@@ -63,15 +65,14 @@
 
   async function removeEntry(index: number) {
     const item = tableData[index];
-    if (!item || !item.itemName) return;
+    if (!item || !item.id) return;
 
     try {
-      const res = await fetch(`${API_BASE}/stock/${encodeURIComponent(item.itemName)}`, {
-        method: 'DELETE'
+      const res = await fetch(`${API_BASE}/stock/${item.id}`, {
+        method: 'DELETE',
+        headers: { 'x-api-key': API_KEY }
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      // Refresh list
       await loadFromAPI();
     } catch (err) {
       console.error('❌ Error removing entry:', err);
@@ -97,7 +98,6 @@
 
   function exportCSV() {
     if (!tableData.length) return;
-
     const headers = ['Item Name', 'Cost Price', 'Selling Price', 'Quantity', 'Profit/Loss'];
     const rows = tableData.map(row => [
       row.itemName,
@@ -175,5 +175,5 @@
 </div>
 
 <style>
-  /* same CSS you had */
+  /* Add your existing styles here */
 </style>
