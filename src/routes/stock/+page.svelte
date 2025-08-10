@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
 
-  let tableData = [];
+  let tableData: any[] = [];
   let itemName = '';
   let costPrice = '';
   let sellingPrice = '';
@@ -12,9 +12,10 @@
   const API_BASE = 'https://biz-suit-api.onrender.com';
 
   function calculateProfitLoss() {
-    profitLoss = tableData.reduce((acc, row) => {
-      return acc + (row.sellingPrice - row.costPrice) * row.quantity;
-    }, 0);
+    profitLoss = tableData.reduce(
+      (acc, row) => acc + (row.sellingPrice - row.costPrice) * row.quantity,
+      0
+    );
   }
 
   async function loadFromAPI() {
@@ -58,7 +59,7 @@
 
   async function removeEntry(index: number) {
     const item = tableData[index];
-    if (!item || !item.itemName) return;
+    if (!item) return;
 
     try {
       const res = await fetch(`${API_BASE}/stock/${encodeURIComponent(item.itemName)}`, {
@@ -113,9 +114,7 @@
     document.body.removeChild(link);
   }
 
-  onMount(() => {
-    loadFromAPI();
-  });
+  onMount(loadFromAPI);
 </script>
 
 <div class="stock-container">
@@ -184,6 +183,7 @@
     text-align: center;
     font-size: 1.8rem;
     margin-bottom: 20px;
+    color: #2c3e50;
   }
 
   .card {
@@ -224,7 +224,7 @@
     cursor: pointer;
     border: none;
     font-weight: 500;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s;
   }
 
   .btn.primary {
@@ -234,6 +234,7 @@
 
   .btn.primary:hover {
     background: #0056b3;
+    transform: scale(1.02);
   }
 
   .btn.secondary {
@@ -242,6 +243,7 @@
 
   .btn.secondary:hover {
     background: #e0e0e0;
+    transform: scale(1.02);
   }
 
   .btn.danger {
@@ -251,6 +253,7 @@
 
   .btn.danger:hover {
     background: #a71d2a;
+    transform: scale(1.02);
   }
 
   .btn.small {
