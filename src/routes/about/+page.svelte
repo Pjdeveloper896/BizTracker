@@ -2,54 +2,76 @@
 	import { fade } from 'svelte/transition';
 
 	const sections = [
-		`This is a <a href="#">BizTrack</a> powered app to manage your business operations.`,
-		`This page is static and lightweight, meaning no JavaScript is required for basic viewing.`,
-		`The <a href="/stock">Stocks</a> section is dynamic and supports live interaction.`,
-		`Explore the <a href="/map">Shop Map</a> feature to visualize your physical inventory locations.`
+		`<strong>BizTrack</strong> is a comprehensive business management platform designed to streamline operations, improve efficiency, and provide real-time insights.`,
+		`This application is crafted with a lightweight architecture — ensuring fast load times and optimal performance without sacrificing functionality.`,
+		`Our <a href="/stock">Inventory Management</a> module offers live updates, product tracking, and seamless stock control at your fingertips.`,
+		`With the <a href="/map">Store Location Map</a>, you can easily visualize and manage the geographical distribution of your assets and outlets.`
 	];
 </script>
 
 <svelte:head>
-	<title>About</title>
-	<meta name="description" content="About this app" />
+	<title>About BizTrack</title>
+	<meta name="description" content="Learn more about BizTrack, a powerful platform for managing your business operations efficiently." />
 </svelte:head>
 
 <div class="about-container">
-	<h1>
-		<span transition:fade={{ duration: 500 }}>About BizTrack</span>
-	</h1>
+	<h1 transition:fade={{ duration: 500 }}>About BizTrack</h1>
 
 	{#each sections as section, i}
-		<div class="about-section">
-			<p transition:fade={{ duration: 500, delay: i * 200 }}>
-				{@html section}
-			</p>
+		<div class="about-section" transition:fade={{ duration: 500, delay: i * 150 }}>
+			<p>{@html section}</p>
 		</div>
 	{/each}
 </div>
 
 <style>
 	.about-container {
-		max-width: 800px;
-		margin: 2rem auto;
-		padding: 1rem;
+		max-width: 900px;
+		margin: 3rem auto;
+		padding: 2rem;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		color: #2c3e50;
 	}
+
 	h1 {
 		text-align: center;
-		color: #2e3c48;
-		font-size: 2.5rem;
-		margin-bottom: 2rem;
+		color: #1a252f;
+		font-size: 2.8rem;
+		margin-bottom: 2.5rem;
+		font-weight: 600;
+		letter-spacing: 0.5px;
 	}
+
 	.about-section {
-		background: #f8f9fa;
-		padding: 1.2rem;
-		margin-bottom: 1rem;
+		background: #ffffff;
+		padding: 1.5rem 1.8rem;
+		margin-bottom: 1.5rem;
 		border-left: 5px solid #26a69a;
-		border-radius: 8px;
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+		border-radius: 10px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
 	}
+
+	.about-section:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+	}
+
+	p {
+		font-size: 1.1rem;
+		line-height: 1.6;
+		margin: 0;
+	}
+
 	p a {
 		color: #26a69a;
-		text-decoration: underline;
+		font-weight: 500;
+		text-decoration: none;
+		border-bottom: 1px solid transparent;
+		transition: border-color 0.2s ease;
+	}
+
+	p a:hover {
+		border-color: #26a69a;
 	}
 </style>
