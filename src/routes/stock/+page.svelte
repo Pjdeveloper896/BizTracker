@@ -27,7 +27,7 @@
 
   let profitLoss = 0;
   let loading = false;
-  let apiKey = '';
+  let apiKey = 'dev-key-localhost';
   let toast = writable<{ type: 'info'|'success'|'error', text: string } | null>(null);
   let showApiModal = false;
   let scanCode = '';
