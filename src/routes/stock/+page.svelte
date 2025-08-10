@@ -2,25 +2,28 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
 
-  let tableData: any[] = [];
+  let tableData = [];
   let itemName = '';
   let costPrice = '';
   let sellingPrice = '';
   let quantity = '';
   let profitLoss = 0;
 
-  const API_BASE = 'https://biz-suit-api.onrender.com';
+  // ✅ Match backend endpoint prefix
+  const API_BASE = 'https://biz-suit-api.onrender.com/api';
+  const API_KEY = 'dev-key-localhost'; // Change to your desired key
 
   function calculateProfitLoss() {
-    profitLoss = tableData.reduce(
-      (acc, row) => acc + (row.sellingPrice - row.costPrice) * row.quantity,
-      0
-    );
+    profitLoss = tableData.reduce((acc, row) => {
+      return acc + (row.sellingPrice - row.costPrice) * row.quantity;
+    }, 0);
   }
 
   async function loadFromAPI() {
     try {
-      const res = await fetch(`${API_BASE}/stock`);
+      const res = await fetch(`${API_BASE}/stock`, {
+        headers: { 'x-api-key': API_KEY }
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       tableData = data;
@@ -45,7 +48,10 @@
     try {
       const res = await fetch(`${API_BASE}/stock`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        },
         body: JSON.stringify(newRow)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -59,11 +65,12 @@
 
   async function removeEntry(index: number) {
     const item = tableData[index];
-    if (!item) return;
+    if (!item || !item.itemName) return;
 
     try {
       const res = await fetch(`${API_BASE}/stock/${encodeURIComponent(item.itemName)}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'x-api-key': API_KEY }
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await loadFromAPI();
@@ -114,7 +121,9 @@
     document.body.removeChild(link);
   }
 
-  onMount(loadFromAPI);
+  onMount(() => {
+    loadFromAPI();
+  });
 </script>
 
 <div class="stock-container">
@@ -178,14 +187,11 @@
     padding: 20px;
     font-family: system-ui, sans-serif;
   }
-
   .page-title {
     text-align: center;
     font-size: 1.8rem;
     margin-bottom: 20px;
-    color: #2c3e50;
   }
-
   .card {
     background: white;
     border-radius: 10px;
@@ -193,13 +199,11 @@
     margin-bottom: 20px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   }
-
   .form-grid {
     display: grid;
     gap: 12px;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
-
   input {
     padding: 10px;
     border: 1px solid #ddd;
@@ -207,91 +211,37 @@
     outline: none;
     transition: border-color 0.2s;
   }
-
-  input:focus {
-    border-color: #007BFF;
-  }
-
+  input:focus { border-color: #007BFF; }
   .action-buttons {
     display: flex;
     gap: 10px;
     margin-top: 12px;
   }
-
   .btn {
     padding: 8px 14px;
     border-radius: 6px;
     cursor: pointer;
     border: none;
     font-weight: 500;
-    transition: background 0.2s, transform 0.1s;
+    transition: background 0.2s;
   }
-
-  .btn.primary {
-    background: #007BFF;
-    color: white;
-  }
-
-  .btn.primary:hover {
-    background: #0056b3;
-    transform: scale(1.02);
-  }
-
-  .btn.secondary {
-    background: #f0f0f0;
-  }
-
-  .btn.secondary:hover {
-    background: #e0e0e0;
-    transform: scale(1.02);
-  }
-
-  .btn.danger {
-    background: #dc3545;
-    color: white;
-  }
-
-  .btn.danger:hover {
-    background: #a71d2a;
-    transform: scale(1.02);
-  }
-
-  .btn.small {
-    padding: 4px 8px;
-    font-size: 0.85rem;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 8px;
-  }
-
+  .btn.primary { background: #007BFF; color: white; }
+  .btn.primary:hover { background: #0056b3; }
+  .btn.secondary { background: #f0f0f0; }
+  .btn.secondary:hover { background: #e0e0e0; }
+  .btn.danger { background: #dc3545; color: white; }
+  .btn.danger:hover { background: #a71d2a; }
+  .btn.small { padding: 4px 8px; font-size: 0.85rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
   th, td {
     padding: 10px;
     border-bottom: 1px solid #eee;
     text-align: left;
   }
-
-  th {
-    background: #f8f9fa;
-    font-weight: 600;
-  }
-
-  tr:hover {
-    background: #fafafa;
-  }
-
-  .profit {
-    color: green;
-    font-weight: 600;
-  }
-
-  .loss {
-    color: red;
-    font-weight: 600;
-  }
-
+  th { background: #f8f9fa; font-weight: 600; }
+  tr:hover { background: #fafafa; }
+  .profit { color: green; font-weight: 600; }
+  .loss { color: red; font-weight: 600; }
   .summary-card {
     text-align: center;
     font-size: 1.2rem;
