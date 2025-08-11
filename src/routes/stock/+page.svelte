@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
+  import Chart from 'chart.js/auto';
 
   let tableData = [];
   let itemName = '';
@@ -8,17 +9,45 @@
   let sellingPrice = '';
   let quantity = '';
   let profitLoss = 0;
-
-  let quantityChart, profitChart, priceChart;
+  let chartCanvas: HTMLCanvasElement;
+  let chartInstance: Chart | null = null;
 
   const API_BASE = 'https://biz-suit-api.onrender.com/api';
-  const API_KEY = 'dev-key-localhost';
+  const API_KEY = 'dev-key-localhost'; // change to your key
 
   function calculateProfitLoss() {
     profitLoss = tableData.reduce(
       (acc, row) => acc + (row.sellingPrice - row.costPrice) * row.quantity,
       0
     );
+  }
+
+  function renderChart() {
+    if (!browser || !chartCanvas) return;
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+    const labels = tableData.map(row => row.itemName);
+    const profits = tableData.map(row => (row.sellingPrice - row.costPrice) * row.quantity);
+
+    chartInstance = new Chart(chartCanvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Profit / Loss (₹)',
+          data: profits,
+          backgroundColor: profits.map(v => v >= 0 ? 'rgba(34,197,94,0.6)' : 'rgba(239,68,68,0.6)'),
+          borderColor: profits.map(v => v >= 0 ? 'rgba(34,197,94,1)' : 'rgba(239,68,68,1)'),
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
   }
 
   async function loadFromAPI() {
@@ -34,10 +63,11 @@
       }));
       calculateProfitLoss();
       saveToLocalStorage();
-      renderCharts();
+      renderChart();
     } catch (err) {
-      console.error('❌ Failed to fetch stock', err);
+      console.error('❌ Failed to fetch stock from API', err);
       loadFromLocalStorage();
+      renderChart();
     }
   }
 
@@ -53,7 +83,10 @@
     try {
       const res = await fetch(`${API_BASE}/stock`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        },
         body: JSON.stringify(newRow)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -66,7 +99,7 @@
 
   async function removeEntry(index: number) {
     const item = tableData[index];
-    if (!item?.id) return;
+    if (!item || !item.id) return;
 
     try {
       const res = await fetch(`${API_BASE}/stock/${item.id}`, {
@@ -81,7 +114,9 @@
   }
 
   function saveToLocalStorage() {
-    if (browser) localStorage.setItem('stockTable', JSON.stringify(tableData));
+    if (browser) {
+      localStorage.setItem('stockTable', JSON.stringify(tableData));
+    }
   }
 
   function loadFromLocalStorage() {
@@ -90,7 +125,6 @@
       if (saved) {
         tableData = JSON.parse(saved);
         calculateProfitLoss();
-        renderCharts();
       }
     }
   }
@@ -105,7 +139,9 @@
       row.quantity,
       (row.sellingPrice - row.costPrice) * row.quantity
     ]);
-    const csv = [headers, ...rows].map(r => r.map(val => `"${val}"`).join(',')).join('\n');
+    const csv = [headers, ...rows]
+      .map(row => row.map(val => `"${val}"`).join(','))
+      .join('\n');
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -116,69 +152,84 @@
     document.body.removeChild(link);
   }
 
-  function renderCharts() {
-    if (!browser || !window.Chart) return;
-
-    const labels = tableData.map(row => row.itemName);
-
-    // Quantity Chart
-    if (quantityChart) quantityChart.destroy();
-    quantityChart = new window.Chart(document.getElementById('quantityChart') as HTMLCanvasElement, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Quantity',
-          data: tableData.map(row => row.quantity),
-          backgroundColor: '#6366F1'
-        }]
-      }
-    });
-
-    // Profit Chart
-    if (profitChart) profitChart.destroy();
-    profitChart = new window.Chart(document.getElementById('profitChart') as HTMLCanvasElement, {
-      type: 'pie',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Profit/Loss',
-          data: tableData.map(row => (row.sellingPrice - row.costPrice) * row.quantity),
-          backgroundColor: ['#10B981', '#F43F5E', '#F59E0B', '#3B82F6', '#8B5CF6']
-        }]
-      }
-    });
-
-    // Price Comparison Chart
-    if (priceChart) priceChart.destroy();
-    priceChart = new window.Chart(document.getElementById('priceChart') as HTMLCanvasElement, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Cost Price',
-            data: tableData.map(row => row.costPrice),
-            borderColor: '#EF4444',
-            fill: false
-          },
-          {
-            label: 'Selling Price',
-            data: tableData.map(row => row.sellingPrice),
-            borderColor: '#22C55E',
-            fill: false
-          }
-        ]
-      }
-    });
-  }
-
-  onMount(() => loadFromAPI());
+  onMount(() => {
+    loadFromAPI();
+  });
 </script>
 
-<svelte:head>
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</svelte:head>
+<div class="min-h-screen bg-gray-100 flex flex-col">
+  <header class="bg-indigo-600 text-white p-4 shadow-lg flex justify-between items-center">
+    <h2 class="text-lg font-bold">📦 Stock Manager</h2>
+    <div class={`font-semibold px-3 py-1 rounded-full ${profitLoss >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+      Total: ₹{profitLoss}
+    </div>
+  </header>
 
-<!-- Your UI remains same as earlier improved version -->
+  <section class="bg-white shadow-md p-4 grid gap-3 sm:grid-cols-5 rounded-lg">
+    <input type="text" placeholder="Item Name" bind:value={itemName} class="border p-2 rounded w-full" />
+    <input type="number" placeholder="Cost Price" bind:value={costPrice} class="border p-2 rounded w-full" />
+    <input type="number" placeholder="Selling Price" bind:value={sellingPrice} class="border p-2 rounded w-full" />
+    <input type="number" placeholder="Quantity" bind:value={quantity} class="border p-2 rounded w-full" />
+    <button class="bg-indigo-600 text-white rounded p-2 hover:bg-indigo-700 transition" on:click={addEntry}>➕ Add</button>
+  </section>
+
+  <div class="flex justify-end p-4 bg-gray-50">
+    <button class="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600 transition" on:click={exportCSV}>
+      📤 Export CSV
+    </button>
+  </div>
+
+  <main class="p-4 flex-1 space-y-6">
+    {#if tableData.length === 0}
+      <p class="text-center text-gray-500 mt-10">No stock items yet. Add some above!</p>
+    {:else}
+      <div class="overflow-x-auto rounded-lg shadow">
+        <table class="min-w-full bg-white border-collapse">
+          <thead class="bg-indigo-100 sticky top-0">
+            <tr>
+              <th class="p-3 text-left">Item</th>
+              <th class="p-3 text-left">Cost Price</th>
+              <th class="p-3 text-left">Selling Price</th>
+              <th class="p-3 text-left">Quantity</th>
+              <th class="p-3 text-left">Profit/Loss</th>
+              <th class="p-3 text-left">Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each tableData as row, i}
+              <tr class="border-b hover:bg-indigo-50 odd:bg-gray-50">
+                <td class="p-3">{row.itemName}</td>
+                <td class="p-3">₹{row.costPrice}</td>
+                <td class="p-3">₹{row.sellingPrice}</td>
+                <td class="p-3">{row.quantity}</td>
+                <td class={`p-3 font-semibold ${(row.sellingPrice - row.costPrice) * row.quantity >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ₹{(row.sellingPrice - row.costPrice) * row.quantity}
+                </td>
+                <td class="p-3">
+                  <button 
+                    class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                    on:click={() => removeEntry(i)}>
+                    🗑 Delete
+                  </button>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Chart -->
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold mb-3">📊 Profit/Loss Chart</h3>
+        <canvas bind:this={chartCanvas}></canvas>
+      </div>
+    {/if}
+  </main>
+</div>
+
+<style>
+  :global(html) {
+    font-family: system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+</style>
