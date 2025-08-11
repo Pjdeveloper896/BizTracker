@@ -1,19 +1,18 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { browser } from '$app/environment';
-  import Chart from 'chart.js/auto';
 
-  let tableData = [];
+  let tableData: any[] = [];
   let itemName = '';
   let costPrice = '';
   let sellingPrice = '';
   let quantity = '';
   let profitLoss = 0;
   let chartCanvas: HTMLCanvasElement;
-  let chartInstance: Chart | null = null;
+  let chartInstance: any = null;
 
   const API_BASE = 'https://biz-suit-api.onrender.com/api';
-  const API_KEY = 'dev-key-localhost'; // change to your key
+  const API_KEY = 'dev-key-localhost'; // Change to your real API key
 
   function calculateProfitLoss() {
     profitLoss = tableData.reduce(
@@ -23,14 +22,14 @@
   }
 
   function renderChart() {
-    if (!browser || !chartCanvas) return;
-    if (chartInstance) {
-      chartInstance.destroy();
-    }
+    if (!browser || !chartCanvas || typeof Chart === 'undefined') return;
+
+    if (chartInstance) chartInstance.destroy();
+
     const labels = tableData.map(row => row.itemName);
     const profits = tableData.map(row => (row.sellingPrice - row.costPrice) * row.quantity);
 
-    chartInstance = new Chart(chartCanvas, {
+    chartInstance = new Chart(chartCanvas.getContext('2d'), {
       type: 'bar',
       data: {
         labels,
@@ -59,14 +58,20 @@
       const data = await res.json();
       tableData = data.map(item => ({
         ...item,
+        costPrice: parseFloat(item.costPrice),
+        sellingPrice: parseFloat(item.sellingPrice),
+        quantity: parseInt(item.quantity),
         id: item._id || item.id
       }));
       calculateProfitLoss();
       saveToLocalStorage();
+
+      await tick();
       renderChart();
     } catch (err) {
       console.error('❌ Failed to fetch stock from API', err);
       loadFromLocalStorage();
+      await tick();
       renderChart();
     }
   }
@@ -157,6 +162,7 @@
   });
 </script>
 
+<!-- HEADER -->
 <div class="min-h-screen bg-gray-100 flex flex-col">
   <header class="bg-indigo-600 text-white p-4 shadow-lg flex justify-between items-center">
     <h2 class="text-lg font-bold">📦 Stock Manager</h2>
@@ -165,6 +171,7 @@
     </div>
   </header>
 
+  <!-- FORM -->
   <section class="bg-white shadow-md p-4 grid gap-3 sm:grid-cols-5 rounded-lg">
     <input type="text" placeholder="Item Name" bind:value={itemName} class="border p-2 rounded w-full" />
     <input type="number" placeholder="Cost Price" bind:value={costPrice} class="border p-2 rounded w-full" />
@@ -173,12 +180,14 @@
     <button class="bg-indigo-600 text-white rounded p-2 hover:bg-indigo-700 transition" on:click={addEntry}>➕ Add</button>
   </section>
 
+  <!-- EXPORT BUTTON -->
   <div class="flex justify-end p-4 bg-gray-50">
     <button class="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600 transition" on:click={exportCSV}>
       📤 Export CSV
     </button>
   </div>
 
+  <!-- MAIN -->
   <main class="p-4 flex-1 space-y-6">
     {#if tableData.length === 0}
       <p class="text-center text-gray-500 mt-10">No stock items yet. Add some above!</p>
@@ -218,7 +227,7 @@
         </table>
       </div>
 
-      <!-- Chart -->
+      <!-- CHART -->
       <div class="bg-white rounded-lg shadow p-4">
         <h3 class="text-lg font-semibold mb-3">📊 Profit/Loss Chart</h3>
         <canvas bind:this={chartCanvas}></canvas>
