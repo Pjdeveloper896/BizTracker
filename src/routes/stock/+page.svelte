@@ -12,7 +12,7 @@
   let toasts: { id: number; message: string; type: "success" | "error" }[] = [];
 
   const API_BASE = "https://biz-suit-api.onrender.com/api";
-  const API_KEY = "dev-key-localhost"; // Change to your real API key
+  const API_KEY = "dev-key-localhost"; // Replace with real API key
 
   // TOAST HANDLER
   function showToast(message: string, type: "success" | "error" = "success") {
@@ -39,9 +39,9 @@
       const data = await res.json();
       tableData = data.map((item) => ({
         ...item,
-        costPrice: parseFloat(item.costPrice),
-        sellingPrice: parseFloat(item.sellingPrice),
-        quantity: parseInt(item.quantity),
+        costPrice: Number(item.costPrice) || 0,
+        sellingPrice: Number(item.sellingPrice) || 0,
+        quantity: Number(item.quantity) || 0,
         id: item._id || item.id,
       }));
       calculateProfitLoss();
@@ -52,7 +52,11 @@
       console.error("❌ Failed to fetch stock from API", err);
       loadFromLocalStorage();
       await tick();
-      showToast("⚠️ Loaded offline data", "error");
+      if (tableData.length) {
+        showToast("⚠️ Loaded offline data", "error");
+      } else {
+        showToast("⚠️ No offline data available", "error");
+      }
     }
   }
 
@@ -64,9 +68,9 @@
 
     const newRow = {
       itemName,
-      costPrice: parseFloat(costPrice),
-      sellingPrice: parseFloat(sellingPrice),
-      quantity: parseInt(quantity),
+      costPrice: Number(costPrice),
+      sellingPrice: Number(sellingPrice),
+      quantity: Number(quantity),
     };
 
     try {
@@ -146,6 +150,7 @@
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.setAttribute("download", "stock_data.csv");
+    link.target = "_blank";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -161,9 +166,9 @@
 <div class="fixed top-4 right-4 z-50 space-y-2">
   {#each toasts as toast (toast.id)}
     <div
-      class="px-4 py-2 rounded shadow text-white animate-fade-in-up"
-      class:bg-green-500={toast.type === "success"}
-      class:bg-red-500={toast.type === "error"}
+      class={`px-4 py-2 rounded shadow text-white animate-fade-in-up ${
+        toast.type === "success" ? "bg-green-500" : "bg-red-500"
+      }`}
     >
       {toast.message}
     </div>
@@ -181,7 +186,7 @@
           : "bg-red-100 text-red-800"
       }`}
     >
-      Total: ₹{profitLoss}
+      Total: ₹{profitLoss.toFixed(2)}
     </div>
   </header>
 
@@ -212,7 +217,7 @@
       placeholder="Quantity"
       bind:value={quantity}
       class="border p-2 rounded w-full focus:ring focus:ring-indigo-300"
-      on:keydown={(e) => e.key === "Enter" && addEntry()}
+      on:keydown={(e: KeyboardEvent) => e.key === "Enter" && addEntry()}
     />
     <button
       class="bg-indigo-600 text-white rounded p-2 hover:bg-indigo-700 transition"
@@ -265,7 +270,7 @@
                       : "text-red-600"
                   }`}
                 >
-                  ₹{(row.sellingPrice - row.costPrice) * row.quantity}
+                  ₹{((row.sellingPrice - row.costPrice) * row.quantity).toFixed(2)}
                 </td>
                 <td class="p-3">
                   <button
