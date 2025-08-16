@@ -8,8 +8,6 @@
   let sellingPrice = "";
   let quantity = "";
   let profitLoss = 0;
-  let chartCanvas: HTMLCanvasElement;
-  let chartInstance: any = null;
 
   let toasts: { id: number; message: string; type: "success" | "error" }[] = [];
 
@@ -32,41 +30,6 @@
     );
   }
 
-  function renderChart() {
-    if (!browser || !chartCanvas || typeof Chart === "undefined") return;
-    if (chartInstance) chartInstance.destroy();
-
-    const labels = tableData.map((row) => row.itemName);
-    const profits = tableData.map(
-      (row) => (row.sellingPrice - row.costPrice) * row.quantity
-    );
-
-    chartInstance = new Chart(chartCanvas.getContext("2d"), {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "Profit / Loss (₹)",
-            data: profits,
-            backgroundColor: profits.map((v) =>
-              v >= 0 ? "rgba(34,197,94,0.6)" : "rgba(239,68,68,0.6)"
-            ),
-            borderColor: profits.map((v) =>
-              v >= 0 ? "rgba(34,197,94,1)" : "rgba(239,68,68,1)"
-            ),
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } },
-      },
-    });
-  }
-
   async function loadFromAPI() {
     try {
       const res = await fetch(`${API_BASE}/stock`, {
@@ -84,143 +47,11 @@
       calculateProfitLoss();
       saveToLocalStorage();
       await tick();
-      renderChart();
       showToast("✅ Stock loaded successfully", "success");
     } catch (err) {
       console.error("❌ Failed to fetch stock from API", err);
       loadFromLocalStorage();
       await tick();
-      renderChart();
-      showToast("⚠️ Loaded offline data", "error");
-    }
-  }
-
-  async function addEntry() {
-    if (!itemName || !costPrice || !sellingPrice || !quantity) {
-      showToast("⚠️ Please fill all fields", "error");
-      return;
-    }
-
-    const newRow = {
-      itemName,
-      costPrice: parseFloat(costPrice),
-      sellingPrice: parseFloat(sellingPrice),
-      quantity: parseInt(quantity),
-    };
-
-    try {
-      const res = await fetch(`${API_BASE}/stock`, {
-        method: "POST",
-        headers: {
-<script lang="ts">
-  import { onMount, tick } from "svelte";
-  import { browser } from "$app/environment";
-
-  let tableData: any[] = [];
-  let itemName = "";
-  let costPrice = "";
-  let sellingPrice = "";
-  let quantity = "";
-  let profitLoss = 0;
-  let chartCanvas: HTMLCanvasElement;
-  let chartInstance: any = null;
-
-  let toasts: { id: number; message: string; type: "success" | "error" }[] = [];
-
-  const API_BASE = "https://biz-suit-api.onrender.com/api";
-  const API_KEY = "dev-key-localhost"; // Change to your real API key
-
-  // ✅ load Chart.js from CDN only on client
-  async function loadChartJS() {
-    if (!browser) return;
-    if (typeof (window as any).Chart === "undefined") {
-      await new Promise<void>((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/chart.js";
-        script.onload = () => resolve();
-        script.onerror = () => reject("Failed to load Chart.js");
-        document.head.appendChild(script);
-      });
-    }
-  }
-
-  // TOAST HANDLER
-  function showToast(message: string, type: "success" | "error" = "success") {
-    const id = Date.now();
-    toasts = [...toasts, { id, message, type }];
-    setTimeout(() => {
-      toasts = toasts.filter((t) => t.id !== id);
-    }, 3000);
-  }
-
-  function calculateProfitLoss() {
-    profitLoss = tableData.reduce(
-      (acc, row) => acc + (row.sellingPrice - row.costPrice) * row.quantity,
-      0
-    );
-  }
-
-  function renderChart() {
-    if (!browser || !chartCanvas || typeof (window as any).Chart === "undefined") return;
-    if (chartInstance) chartInstance.destroy();
-
-    const Chart = (window as any).Chart;
-
-    const labels = tableData.map((row) => row.itemName);
-    const profits = tableData.map(
-      (row) => (row.sellingPrice - row.costPrice) * row.quantity
-    );
-
-    chartInstance = new Chart(chartCanvas.getContext("2d"), {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "Profit / Loss (₹)",
-            data: profits,
-            backgroundColor: profits.map((v) =>
-              v >= 0 ? "rgba(34,197,94,0.6)" : "rgba(239,68,68,0.6)"
-            ),
-            borderColor: profits.map((v) =>
-              v >= 0 ? "rgba(34,197,94,1)" : "rgba(239,68,68,1)"
-            ),
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } },
-      },
-    });
-  }
-
-  async function loadFromAPI() {
-    try {
-      const res = await fetch(`${API_BASE}/stock`, {
-        headers: { "x-api-key": API_KEY },
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      tableData = data.map((item) => ({
-        ...item,
-        costPrice: parseFloat(item.costPrice),
-        sellingPrice: parseFloat(item.sellingPrice),
-        quantity: parseInt(item.quantity),
-        id: item._id || item.id,
-      }));
-      calculateProfitLoss();
-      saveToLocalStorage();
-      await tick();
-      renderChart();
-      showToast("✅ Stock loaded successfully", "success");
-    } catch (err) {
-      console.error("❌ Failed to fetch stock from API", err);
-      loadFromLocalStorage();
-      await tick();
-      renderChart();
       showToast("⚠️ Loaded offline data", "error");
     }
   }
@@ -321,12 +152,10 @@
     showToast("📤 CSV Exported", "success");
   }
 
-  onMount(async () => {
-    await loadChartJS();
+  onMount(() => {
     loadFromAPI();
   });
 </script>
-
 
 <!-- TOASTS -->
 <div class="fixed top-4 right-4 z-50 space-y-2">
@@ -450,14 +279,6 @@
             {/each}
           </tbody>
         </table>
-      </div>
-
-      <!-- CHART -->
-      <div class="bg-white rounded-lg shadow p-4">
-        <h3 class="text-lg font-semibold mb-3">📊 Profit/Loss Chart</h3>
-        <div class="w-full overflow-x-auto">
-          <canvas bind:this={chartCanvas}></canvas>
-        </div>
       </div>
     {/if}
   </main>
