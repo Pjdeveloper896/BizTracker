@@ -21,7 +21,7 @@
 <!-- Navbar -->
 <nav class="white z-depth-2">
 	<div class="nav-wrapper container">
-		<a href="/" class="brand-logo black-text">BizTrack</a>
+		<a href="/" class="brand-logo black-text">BizKhata</a>
 		<a href="#" data-target="mobile-demo" class="sidenav-trigger">
 			<i class="material-icons black-text">menu</i>
 		</a>
