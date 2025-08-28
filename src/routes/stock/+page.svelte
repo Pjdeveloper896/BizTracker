@@ -15,6 +15,22 @@
   let sellingPrice: number | null = null;
   let quantity: number | null = null;
 
+  // Load from localStorage on mount
+  onMount(() => {
+    if (browser) {
+      const savedData = localStorage.getItem("bizkhata_inventory");
+      if (savedData) {
+        tableData = JSON.parse(savedData);
+      }
+    }
+  });
+
+  function saveToLocalStorage() {
+    if (browser) {
+      localStorage.setItem("bizkhata_inventory", JSON.stringify(tableData));
+    }
+  }
+
   function addItem() {
     if (!itemName || costPrice === null || sellingPrice === null || quantity === null) {
       return;
@@ -27,6 +43,9 @@
       { itemName, costPrice, sellingPrice, quantity, profitLoss },
     ];
 
+    saveToLocalStorage();
+
+    // Reset inputs
     itemName = "";
     costPrice = null;
     sellingPrice = null;
@@ -35,6 +54,7 @@
 
   function deleteItem(index: number) {
     tableData = tableData.filter((_, i) => i !== index);
+    saveToLocalStorage();
   }
 </script>
 
@@ -43,7 +63,6 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
 />
-
 
 <div class="container">
   <h3 class="center-align">📊 BizKhata Inventory</h3>
