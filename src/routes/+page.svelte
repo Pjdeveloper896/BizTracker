@@ -116,4 +116,5 @@
 	<a href="https://biz-tracker-vert.vercel.app/">
 		<button>{translations[lang].start}</button>
 	</a>
+	<a href="/stock">Get Started </a>
 </main>
